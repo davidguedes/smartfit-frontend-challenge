@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 import { FilterUnitsService } from './services/filter-units.service';
@@ -13,8 +13,15 @@ import { FooterComponent } from './components/footer/footer.component';
 import { FormsComponent } from './components/forms/forms.component';
 import { HeaderComponent } from './components/header/header.component';
 import { LegendComponent } from './components/legend/legend.component';
+import { GetUnitsServiceMock } from './mocks/get-units.servoce.mock';
+import { locationMock } from './mocks/location.mock';
+import { GetUnitsService } from './services/get-units.service';
 
 describe('AppComponent', () => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+  let getUnitService: GetUnitsService
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -34,14 +41,27 @@ describe('AppComponent', () => {
         FooterComponent
       ],
       providers: [
-        FilterUnitsService
+        FilterUnitsService,
+        {
+          provide: GetUnitsService,
+          useValue: GetUnitsServiceMock
+        }
       ]
     }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    getUnitService = TestBed.inject(GetUnitsService);
+    component = fixture.componentInstance;
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(component).toBeTruthy();
+  });
+
+  it('should set unitLists onSubmit', () => {
+    component.onSubmit();
+
+    expect(getUnitService.getFilteredUnits).toHaveBeenCalled();
+    expect(component.unitsList).toEqual([locationMock]);
   });
 });
